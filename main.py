@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-import os, discord
+import os, subprocess, discord
 
 load_dotenv()
 
@@ -19,8 +19,26 @@ async def on_message(message):
     username = str(message.author)
     user_message = str(message.content)
     channel = str(message.channel)
-
     print(f'{username} dijo: {user_message} en {channel}')
+
+    if message.content.startswith('>cmd'):
+        message_array = user_message.split()
+
+        if len(message_array) == 1:
+            await message.channel.send('Faltan argumentos')
+            return
+
+        message_array.pop(0)
+
+        cmd = ""
+        for arg in message_array:
+            cmd += arg + " "
+        
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+        print(result.stdout)
+
+        await message.channel.send(result.stdout)
 
     if message.content.startswith('>hola'):
         await message.channel.send('qp perro')
